@@ -13,7 +13,7 @@ type Config struct {
 		Port          string
 		DbType        string
 		DbAutoMigrate bool
-		DbLogMod      string
+		DbLogMode     string
 	}
 
 	Log struct {

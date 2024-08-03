@@ -2,13 +2,20 @@ package ginblog
 
 import (
 	g "awesomeProject1/internal/global"
+	"context"
+	"github.com/glebarez/sqlite"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/driver/mysql"
+
+	"log"
+	"log/slog"
+
+	"os"
+	"time"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"log"
-	"log/slog"
-	"os"
-	"time"
 )
 
 // InitLogger 初始化日志系统。
@@ -63,15 +70,15 @@ func InitLogger(conf *g.Config) *slog.Logger {
 	return logger
 }
 
-func initDatabase(conf *g.Config) *gorm.DB {
-	dbType := conf.DbType()
+func InitDatabase(conf *g.Config) *gorm.DB {
+	dbtype := conf.DbType()
 	dsn := conf.DbDSN()
 
 	var db *gorm.DB
 	var err error
 
 	var level logger.LogLevel
-	switch conf.Server.DbLogMod {
+	switch conf.Server.DbLogMode {
 	case "silent":
 		level = logger.Silent
 	case "info":
@@ -86,20 +93,47 @@ func initDatabase(conf *g.Config) *gorm.DB {
 
 	config := &gorm.Config{
 		Logger:                                   logger.Default.LogMode(level),
-		DisableForeignKeyConstraintWhenMigrating: true,
-		SkipDefaultTransaction:                   true,
+		DisableForeignKeyConstraintWhenMigrating: true, // 禁用外键约束
+		SkipDefaultTransaction:                   true, // 禁用默认事务（提高运行速度）
 		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true,
+			SingularTable: true, // 单数表名
 		},
 	}
 
-	switch dbType {
+	switch dbtype {
 	case "mysql":
-		gorm.Open(mysql.Open(dsn), config)
-	case "sadfhiawehfhasdfiuawhefhiasdffaieufh":
+		db, err = gorm.Open(mysql.Open(dsn), config)
+	case "sqlite":
+		db, err = gorm.Open(sqlite.Open(dsn), config)
 	default:
-		log.Fatal("不支持的数据库类型: ", dbType)
+		log.Fatal("不支持的数据库类型: ", dbtype)
+	}
+	if err != nil {
+		log.Fatal("Database Connect fail", err)
 	}
 
-	return nil
+	log.Println("数据库连接成功", dbtype, dsn)
+
+	if conf.Server.DbAutoMigrate {
+		// Todo 数据迁移 暂不实现
+		log.Println("数据库自动迁移成功")
+	}
+	return db
+}
+
+func InitRedis(conf *g.Config) *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     conf.Redis.Addr,
+		Password: conf.Redis.Password,
+		DB:       conf.Redis.DB,
+	})
+
+	_, err := rdb.Ping(context.Background()).Result()
+
+	if err != nil {
+		log.Fatal("Redis Connect fail", err)
+	}
+
+	log.Println("Redis 连接成功", conf.Redis.Addr, conf.Redis.DB, conf.Redis.Password)
+	return rdb
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	ginblog "awesomeProject1/internal"
 	g "awesomeProject1/internal/global"
 	"flag"
 )
@@ -11,5 +12,9 @@ func main() {
 	flag.Parse()
 
 	conf := g.ReadConfig(*configPath)
+
+	_ = ginblog.InitLogger(conf)
+	db := ginblog.InitDatabase(conf)
+	rdb := ginblog.InitRedis(conf)
 
 }
