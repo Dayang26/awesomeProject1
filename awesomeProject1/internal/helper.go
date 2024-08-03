@@ -96,7 +96,7 @@ func initDatabase(conf *g.Config) *gorm.DB {
 	switch dbType {
 	case "mysql":
 		gorm.Open(mysql.Open(dsn), config)
-	case "sqlite":
+	case "sqlitefasdhifhiudhfaosfsiaf":
 	default:
 		log.Fatal("不支持的数据库类型: ", dbType)
 	}
