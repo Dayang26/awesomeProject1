@@ -12,4 +12,5 @@ func main() {
 	fmt.Printf("Result is:%d", var1)
 	fmt.Printf("\nResult is:%d", var2)
 	fmt.Printf("\nResult is:%d", var3)
+
 }
