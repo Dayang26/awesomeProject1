@@ -12,6 +12,7 @@ var (
 	// 后台管理系统接口
 
 	userAuthAPI handle.UserAuth // 用户账号
+	blogInfoAPI handle.BlogInfo // 博客设置
 
 )
 
@@ -23,10 +24,18 @@ func registerHandler(r *gin.Engine) {
 	RegisterBaseHandler(r)
 }
 
+// 通用接口
 func RegisterBaseHandler(r *gin.Engine) {
 	base := r.Group("/api")
 	base.POST("/login", userAuthAPI.Login)
 	base.POST("/register", userAuthAPI.Register)
 	base.GET("/logout", userAuthAPI.Logout)
-	base.GET("/re", userAuthAPI.SendCode)
+	base.GET("/code", userAuthAPI.SendCode)
+	base.GET("/config", blogInfoAPI.GetConfigMap)
+	base.PATCH("/config", blogInfoAPI.UpdateConfig)
+}
+
+// 后台管理接口 全部需要 登录 + 鉴权
+func registerAdminHandler(r *gin.Engine) {
+
 }

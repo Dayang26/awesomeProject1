@@ -62,7 +62,7 @@ func (*BlogInfo) UpdateConfig(c *gin.Context) {
 	}
 
 	if err := model.CheckConfigMap(GetDB(c), m); err != nil {
-		ReturnError(c, g.ErrRedisOp, err)
+		ReturnError(c, g.ErrDbOp, err)
 		return
 	}
 
@@ -109,4 +109,31 @@ func (*BlogInfo) GetHomeInfo(c *gin.Context) {
 		MessageCount: messageCount,
 		ViewCount:    viewCount,
 	})
+}
+
+// 获取关于
+func (*BlogInfo) GetAbout(c *gin.Context) {
+	ReturnSuccess(c, model.GetConfig(GetDB(c), g.CONFIG_ABOUT))
+}
+
+// 更新关于
+func (*BlogInfo) UpdateAbout(c *gin.Context) {
+	var req AboutReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ReturnError(c, g.ErrRequest, err)
+		return
+	}
+
+	err := model.CheckConfig(GetDB(c), g.CONFIG_ABOUT, req.Content)
+	if err != nil {
+		ReturnError(c, g.ErrDbOp, err)
+		return
+	}
+
+	ReturnSuccess(c, req.Content)
+}
+
+// 上报用户信息
+func (*BlogInfo) Report(c *gin.Context) {
+	// todo 上报用户信息
 }
