@@ -4,6 +4,7 @@ import (
 	g "awesomeProject1/internal/global"
 	"awesomeProject1/internal/model"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"log/slog"
 )
 
@@ -73,6 +74,39 @@ func (*BlogInfo) UpdateConfig(c *gin.Context) {
 	ReturnSuccess(c, nil)
 }
 
+// 获取首页信息
 func (*BlogInfo) GetHomeInfo(c *gin.Context) {
+	db := GetDB(c)
+	rdb := GetRDB(c)
 
+	articleCount, err := model.Count(db, &model.Article{}, "status = ? AND is_deleted = ?", 1, 0)
+	if err != nil {
+		ReturnError(c, g.ErrDbOp, err)
+		return
+	}
+
+	userCount, err := model.Count(db, &model.UserInfo{})
+	if err != nil {
+		ReturnError(c, g.ErrDbOp, err)
+		return
+	}
+
+	messageCount, err := model.Count(db, &model.Message{})
+	if err != nil {
+		ReturnError(c, g.ErrRedisOp, err)
+		return
+	}
+
+	viewCount, err := rdb.Get(rctx, g.VIEW_COUNT).Int()
+	if err != nil && err != redis.Nil {
+		ReturnError(c, g.ErrRedisOp, err)
+		return
+	}
+
+	ReturnSuccess(c, BlogHomeVo{
+		ArticleCount: articleCount,
+		UserCount:    userCount,
+		MessageCount: messageCount,
+		ViewCount:    viewCount,
+	})
 }
