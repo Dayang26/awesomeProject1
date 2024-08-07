@@ -6,16 +6,13 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
-
-	"log"
-	"log/slog"
-
-	"os"
-	"time"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"log"
+	"log/slog"
+	"os"
+	"time"
 )
 
 // InitLogger 初始化日志系统。

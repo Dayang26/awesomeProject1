@@ -6,18 +6,17 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-contrib/sessions/memstore"
-	"log/slog"
-
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"log/slog"
 	"time"
 )
 
 // WithRedisDb 将redis.Client 注入到 gin.Context 中
 func WithRedisDB(rdb *redis.Client) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.Set(g.CTX_DB, rdb)
+		ctx.Set(g.CTX_RDB, rdb)
 		ctx.Next()
 
 	}

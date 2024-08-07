@@ -22,10 +22,8 @@ func main() {
 	rdb := ginblog.InitRedis(conf)
 
 	gin.SetMode(conf.Server.Mode)
-
 	r := gin.New()
 	r.SetTrustedProxies([]string{"*"})
-
 	// 开发模式使用gin自带的日志和恢复中间件，生产模式使用自定义的中间件
 	if conf.Server.Mode == "debug" {
 		r.Use(gin.Logger(), gin.Recovery())
@@ -37,6 +35,7 @@ func main() {
 	r.Use(middleware.WithGormDB(db))
 	r.Use(middleware.WithRedisDB(rdb))
 	r.Use(middleware.WithCookiesStore(conf.Session.Name, conf.Session.Salt))
+	ginblog.RegisterBaseHandler(r)
 
 	if conf.Upload.OssType == "local" {
 		r.Static(conf.Upload.Path, conf.Upload.StorePath)

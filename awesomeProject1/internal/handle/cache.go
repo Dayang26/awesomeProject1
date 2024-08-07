@@ -38,3 +38,11 @@ func getPageCache(rdb *redis.Client) (cache []model.Page, err error) {
 func addConfigCache(rdb *redis.Client, config map[string]string) error {
 	return rdb.HMSet(rctx, g.CONFIG, config).Err()
 }
+
+func removeConfigCache(rdb *redis.Client) error {
+	return rdb.Del(rctx, g.CONFIG).Err()
+}
+
+func getConfigCache(rdb *redis.Client) (cache map[string]string, err error) {
+	return rdb.HGetAll(rctx, g.CONFIG).Result()
+}
