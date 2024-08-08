@@ -3,6 +3,7 @@ package ginblog
 import (
 	"awesomeProject1/docs"
 	"awesomeProject1/internal/handle"
+	"awesomeProject1/internal/middleware"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -38,6 +39,9 @@ func RegisterBaseHandler(r *gin.Engine) {
 // 后台管理接口 全部需要 登录 + 鉴权
 func registerAdminHandler(r *gin.Engine) {
 	auth := r.Group("/api")
-	auth.Use()
+
+	auth.Use(middleware.JWTAuth())
+	auth.Use(middleware.PermissionCheck())
+	auth.Use(middleware.OperationLog())
 
 }
