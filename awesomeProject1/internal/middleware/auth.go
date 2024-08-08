@@ -113,9 +113,26 @@ func PermissionCheck() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("current request path is %s \n", c.FullPath())
+		fmt.Printf("[middleware-PermissionCheck] current request path is %s \n", c.FullPath())
 		url := c.FullPath()[4:]
+		method := c.Request.Method
 
-		slog.Debug(fmt.Sprintf("[middlerware-PermissionCheck]"))
+		slog.Debug(fmt.Sprintf("[middleware-PermissionCheck] %v ,%v, %v \n", auth.Username, url, method))
+		for _, role := range auth.Roles {
+			slog.Debug(fmt.Sprintf("[middleware-PermissionCheck] %v\n", role.Name))
+			pass, err := model.CheckRoleAuth(db, role.ID, url, method)
+			if err != nil {
+				handle.ReturnError(c, g.ErrDbOp, err)
+				return
+			}
+
+			if !pass {
+				handle.ReturnError(c, g.ErrPermission, nil)
+				return
+			}
+		}
+
+		slog.Debug("[middleware-PermissionCheck]: pass")
+		c.Next()
 	}
 }
