@@ -34,14 +34,13 @@ func RegisterBaseHandler(r *gin.Engine) {
 	base.GET("/code", userAuthAPI.SendCode)
 	base.GET("/config", blogInfoAPI.GetConfigMap)
 	base.PATCH("/config", blogInfoAPI.UpdateConfig)
+
 }
 
 // 后台管理接口 全部需要 登录 + 鉴权
 func registerAdminHandler(r *gin.Engine) {
 	auth := r.Group("/api")
-
 	auth.Use(middleware.JWTAuth())
 	auth.Use(middleware.PermissionCheck())
 	auth.Use(middleware.OperationLog())
-
 }
